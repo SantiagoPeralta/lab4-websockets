@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import websockets.service.Eliza;
 import websockets.web.ElizaServerEndpoint;
 
 import javax.websocket.*;
@@ -16,6 +17,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
@@ -35,7 +37,7 @@ public class ElizaServerTest {
 
 	@Test(timeout = 5000)
 	public void onOpen() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
-		CountDownLatch latch = new CountDownLatch(3);
+        CountDownLatch latch = new CountDownLatch(3);
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
@@ -55,15 +57,30 @@ public class ElizaServerTest {
 
 	@Test(timeout = 1000)
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
-		// COMPLETE ME!!
+        final int TAMANHO_LATCH = 5;
+        System.out.println("PRUEBA DE NIVEL");
+        // COMPLETE ME!!
+        CountDownLatch latch = new CountDownLatch(TAMANHO_LATCH);
+
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
+		Session conexionElisa = client.connectToServer(new ElizaEndpointToComplete(list, latch), configuration, new URI("ws://localhost:8025/websockets/eliza"));
 		// COMPLETE ME!!
-		// COMPLETE ME!!
-		// COMPLETE ME!!
-	}
+        conexionElisa.getAsyncRemote().sendText("Holaa!!");
+        // COMPLETE ME!!
+        latch.await();
+        // COMPLETE ME!!
+        assertEquals(TAMANHO_LATCH, list.size());
+        assertEquals("What's on your mind?", list.get(1));
+        System.out.println("Posicion 1 :::::> " + list.get(0));
+        System.out.println("Posicion 2 :::::> " + list.get(1));
+        System.out.println("Posicion 3 :::::> " + list.get(2));
+        System.out.println("Posicion 4 :::::> " + list.get(3));
+        System.out.println("Posicion 5 :::::> " + list.get(4));
+
+        System.out.println("TO PASAU");
+    }
 
 	@After
 	public void close() {
@@ -74,7 +91,6 @@ public class ElizaServerTest {
 
         private final List<String> list;
         private final CountDownLatch latch;
-
         ElizaOnOpenMessageHandler(List<String> list, CountDownLatch latch) {
             this.list = list;
             this.latch = latch;
@@ -85,15 +101,18 @@ public class ElizaServerTest {
             LOGGER.info("Client received \""+message+"\"");
             list.add(message);
             latch.countDown();
-        }
-    }
 
+        }
+
+    }
     private static class ElizaEndpointToComplete extends Endpoint {
 
         private final List<String> list;
+        private final CountDownLatch latch;
 
-        ElizaEndpointToComplete(List<String> list) {
+        ElizaEndpointToComplete(List<String> list, CountDownLatch latch) {
             this.list = list;
+            this.latch = latch;
         }
 
         @Override
@@ -107,9 +126,11 @@ public class ElizaServerTest {
         private class ElizaMessageHandlerToComplete implements MessageHandler.Whole<String> {
 
             @Override
-            public void onMessage(String message) {
-                list.add(message);
+            public void onMessage(String mensage) {
+                LOGGER.info("CONEXION OPEN \"" + mensage + "\"");
+                list.add(mensage);
                 // COMPLETE ME!!!
+                latch.countDown();
             }
         }
     }
