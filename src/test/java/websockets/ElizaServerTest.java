@@ -67,19 +67,19 @@ public class ElizaServerTest {
 		ClientManager client = ClientManager.createClient();
 		Session conexionElisa = client.connectToServer(new ElizaEndpointToComplete(list, latch), configuration, new URI("ws://localhost:8025/websockets/eliza"));
 		// COMPLETE ME!!
-        conexionElisa.getAsyncRemote().sendText("Holaa!!");
+        conexionElisa.getAsyncRemote().sendText("Do you really think so?");
         // COMPLETE ME!!
         latch.await();
         // COMPLETE ME!!
         assertEquals(TAMANHO_LATCH, list.size());
-        assertEquals("What's on your mind?", list.get(1));
+        assertEquals("We were discussing you, not me.", list.get(3));
+        // Traza para observar la respuesta
         System.out.println("Posicion 1 :::::> " + list.get(0));
         System.out.println("Posicion 2 :::::> " + list.get(1));
         System.out.println("Posicion 3 :::::> " + list.get(2));
         System.out.println("Posicion 4 :::::> " + list.get(3));
         System.out.println("Posicion 5 :::::> " + list.get(4));
 
-        System.out.println("TO PASAU");
     }
 
 	@After
